@@ -1,5 +1,5 @@
-﻿using System.Net;
-using System.IO.Compression;
+﻿using System.IO.Compression;
+using Octokit;
 
 namespace StacketManager
 {
@@ -60,10 +60,35 @@ namespace StacketManager
             catch (Exception e) { DisplayError("Исключение: " + e.Message); }
         }
 
-        public async Task UpdatePackage(string packageName)
+        /* Пока не нужно.
+        public async Task UpdatePackage(string owner, string reponame, string path) // путь БЕЗ САМОГО ФАЙЛА, ТОЛЬКО ДО ДИРЕКТОРИИ!!!
         {
+            var client = new GitHubClient(new ProductHeaderValue("MyApp"));
+            // client.Credentials = new Credentials("ВАШ_ТОКЕН"); // Если репозиторий приватный
 
+            var latestRelease = await client.Repository.Release.GetLatest(owner, reponame);
+
+            foreach (var asset in latestRelease.Assets)
+            {
+                string fileName = asset.Name;
+
+                // Решение: Запрашиваем байты файла напрямую через URI ресурса API
+                var response = await client.Connection.Get<byte[]>(
+                    new System.Uri(asset.Url),
+                    new System.Collections.Generic.Dictionary<string, string>(),
+                    "application/octet-stream" // Обязательный заголовок для получения файла
+                );
+
+                // В ответе будет содержаться массив байт (Body)
+                byte[] fileData = response.Body;
+
+                if (!path.EndsWith(@"\")) { path = path + @"\"; }
+
+                await File.WriteAllBytesAsync(path + fileName, fileData);
+                Console.WriteLine($"Файл успешно скачан.");
+            }
         }
+        */
 
         void DisplayError(string error)
         {

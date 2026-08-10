@@ -1,33 +1,50 @@
 ﻿using StacketManager;
 
 string command;
-string argsURL = null;
+string argsPackageNameInstall = null;
+string argsPackageNameDelete = null;
 StacketMan stackman = new StacketMan();
 Console.WriteLine("Welcome to StacketManager. Type 'help' for help.");
 
 for (int i = 0; i < args.Length; i++)
 {
-    // Проверяем, равен ли текущий элемент --file и есть ли следующий элемент
+    // Проверяем, равен ли текущий элемент -install и есть ли следующий элемент
     if (args[i] == "-install" && i + 1 < args.Length)
     {
-        argsURL = args[i + 1];
+        argsPackageNameInstall = args[i + 1];
         break;
     }
-    else { break; }
+    else if (args[i] == "-delete" && i + 1 < args.Length)
+    {
+        argsPackageNameDelete = args[i + 1];
+        break;
+    }
 }
 
-if (argsURL != null)
+if (argsPackageNameInstall != null)
 {
     try
     {
-        string fullfilename = argsURL.Split('/')[^1];
-        string filename = fullfilename.Split('.')[0];
+        if (argsPackageNameInstall == "LuaForPukiTerminal")
+        {
+            string url = "https://github.com/dani1701d/LuaForPukiHone/releases/download/main/LuaForPukiTerminal.zip";
+            string fullfilename = url.Split('/')[^1];
+            string filename = fullfilename.Split('.')[0];
 
-        await stackman.DownloadPackage(argsURL, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\PukiHone\temp", fullfilename);
-        await stackman.UnarchivePackage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\temp\{fullfilename}", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\{filename}");
-        await stackman.DeleteArchive(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\temp\{fullfilename}");
-
-        Console.WriteLine($"Package {filename} successfully installed!");
+            await stackman.DownloadPackage(argsPackageNameInstall, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\PukiHone\temp", fullfilename);
+            await stackman.UnarchivePackage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\temp\{fullfilename}", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\{filename}");
+            await stackman.DeleteArchive(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\temp\{fullfilename}");
+            Console.WriteLine($"Package {argsPackageNameInstall} successfully installed!");
+        }
+        else { DisplayError($"Package {argsPackageNameInstall} doesn't exist."); }
+    }
+    catch (Exception e) { DisplayError("Exception: " + e.Message); }
+}
+else if (argsPackageNameDelete != null)
+{
+    try
+    { 
+        stackman.DeletePackage(argsPackageNameDelete);
     }
     catch (Exception e) { DisplayError("Exception: " + e.Message); }
 }
@@ -35,7 +52,7 @@ else
 {
     while (true)
     {
-        
+
         command = Console.ReadLine();
         string[] arguments = command.Split(' '); // Разделение строки на аргументы (0 - сама команда, 1 и дальше - аргументы команды)
 
@@ -49,7 +66,7 @@ else
             {
                 if (arguments[1] == "LuaForPukiTerminal")
                 {
-                    string url = "https://github.com/dani1701d/LuaForPukiHone/releases/download/1.0/LuaForPukiTerminal.zip";
+                    string url = "https://github.com/dani1701d/LuaForPukiHone/releases/download/main/LuaForPukiTerminal.zip";
                     string fullfilename = url.Split('/')[^1];
                     string filename = fullfilename.Split('.')[0];
 
@@ -58,7 +75,7 @@ else
                     await stackman.DeleteArchive(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\temp\{fullfilename}");
                     Console.WriteLine($"Package {arguments[1]} successfully installed!");
                 }
-                
+                else { DisplayError($"Package {arguments[1]} doesn't exist."); }
             }
             catch (Exception e) { DisplayError("Исключение: " + e.Message); }
         }
@@ -102,7 +119,7 @@ void DisplayHelp()
     Console.ForegroundColor = ConsoleColor.Yellow;
     Console.WriteLine("List of commands:");
     Console.ForegroundColor = ConsoleColor.White;
-    Console.WriteLine("install [url] - install package");
+    Console.WriteLine("install [package name] - install package");
     Console.WriteLine("delete [package name] - remove package");
     Console.WriteLine("list - get list of installed packages");
     Console.WriteLine("online-packages - get list of online packages");
