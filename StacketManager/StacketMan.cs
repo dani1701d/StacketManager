@@ -31,17 +31,17 @@ namespace StacketManager
             ZipFile.ExtractToDirectory(zipPath, outputPath);    
         }
 
-        public async Task DeletePackage(string zipPath)
+        public async Task DeleteArchive(string zipPath)
         {
             File.Delete(zipPath);
         }
 
-        public async Task GetAvailablePackages()
+        public async Task DeletePackage(string packageName)
         {
-            
+            Directory.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\{packageName}", true);
         }
 
-        public async Task UpdateStacketMan()
+        public async Task UpdatePackage(string packageName)
         {
 
         }
