@@ -35,7 +35,7 @@ else
 {
     while (true)
     {
-        Console.Write("> ");
+        
         command = Console.ReadLine();
         string[] arguments = command.Split(' '); // Разделение строки на аргументы (0 - сама команда, 1 и дальше - аргументы команды)
 
@@ -47,13 +47,18 @@ else
         {
             try
             {
-                string fullfilename = arguments[1].Split('/')[^1];
-                string filename = fullfilename.Split('.')[0];
+                if (arguments[1] == "LuaForPukiTerminal")
+                {
+                    string url = "https://github.com/dani1701d/LuaForPukiHone/releases/download/1.0/LuaForPukiTerminal.zip";
+                    string fullfilename = url.Split('/')[^1];
+                    string filename = fullfilename.Split('.')[0];
 
-                await stackman.DownloadPackage(arguments[1], Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\PukiHone\temp", fullfilename);
-                await stackman.UnarchivePackage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\temp\{fullfilename}", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\{filename}");
-                await stackman.DeleteArchive(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\temp\{fullfilename}");
-                Console.WriteLine($"Package {arguments[1]} successfully installed!");
+                    await stackman.DownloadPackage(arguments[1], Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\PukiHone\temp", fullfilename);
+                    await stackman.UnarchivePackage(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\temp\{fullfilename}", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\{filename}");
+                    await stackman.DeleteArchive(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\temp\{fullfilename}");
+                    Console.WriteLine($"Package {arguments[1]} successfully installed!");
+                }
+                
             }
             catch (Exception e) { DisplayError("Исключение: " + e.Message); }
         }
@@ -81,7 +86,13 @@ else
             }
             catch (Exception e) { DisplayError("Исключение: " + e.Message); }
         }
+        else if (arguments[0] == "online-packages")
+        {
+            await stackman.GetListFromFile();
+        }
         else { DisplayError($"Command {arguments[0]} doesn't exist."); }
+
+        Console.Write("> ");
     }
 }
 
@@ -94,6 +105,7 @@ void DisplayHelp()
     Console.WriteLine("install [url] - install package");
     Console.WriteLine("delete [package name] - remove package");
     Console.WriteLine("list - get list of installed packages");
+    Console.WriteLine("online-packages - get list of online packages");
     Console.ResetColor();
     Console.WriteLine();
 }

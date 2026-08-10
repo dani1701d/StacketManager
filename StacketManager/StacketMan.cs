@@ -41,9 +41,35 @@ namespace StacketManager
             Directory.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @$"\PukiHone\{packageName}", true);
         }
 
+        public async Task GetListFromFile()
+        {
+            // 1. Define the raw file URL
+            string url = "https://raw.githubusercontent.com/dani1701d/Packages-List-for-PukiHone/refs/heads/main/PackagesList.txt";
+
+            using HttpClient client = new HttpClient();
+
+            // 2. GitHub API requires a User-Agent header
+            client.DefaultRequestHeaders.Add("User-Agent", "C#-App");
+
+            try
+            {
+                // 3. Fetch the content as a string
+                string fileContent = await client.GetStringAsync(url);
+                Console.WriteLine(fileContent);
+            }
+            catch (Exception e) { DisplayError("Исключение: " + e.Message); }
+        }
+
         public async Task UpdatePackage(string packageName)
         {
 
+        }
+
+        void DisplayError(string error)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(error);
+            Console.ResetColor();
         }
     }
 }
