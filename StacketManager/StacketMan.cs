@@ -51,50 +51,38 @@ namespace StacketManager
             // 2. GitHub API requires a User-Agent header
             client.DefaultRequestHeaders.Add("User-Agent", "C#-App");
 
-            try
-            {
-                // 3. Fetch the content as a string
-                string fileContent = await client.GetStringAsync(url);
-                Console.WriteLine(fileContent);
-            }
-            catch (Exception e) { DisplayError("Исключение: " + e.Message); }
+           
+            // 3. Fetch the content as a string
+            string fileContent = await client.GetStringAsync(url);
+            Console.WriteLine(fileContent);
         }
 
-        /* Пока не нужно.
-        public async Task UpdatePackage(string owner, string reponame, string path) // путь БЕЗ САМОГО ФАЙЛА, ТОЛЬКО ДО ДИРЕКТОРИИ!!!
+        public async Task DownloadPackageFromGithub(string owner, string reponame, string path) // путь БЕЗ САМОГО ФАЙЛА, ТОЛЬКО ДО ДИРЕКТОРИИ!!!
         {
             var client = new GitHubClient(new ProductHeaderValue("MyApp"));
-            // client.Credentials = new Credentials("ВАШ_ТОКЕН"); // Если репозиторий приватный
+            // client.Credentials = new Credentials("ВАШ_ТОКЕН"); // Если необходимо
 
             var latestRelease = await client.Repository.Release.GetLatest(owner, reponame);
+
+            if (!path.EndsWith(@"\")) { path = path + @"\"; }
+            // Создаем директорию, если она не существует
+            Directory.CreateDirectory(path);
+
+            using var httpClient = new HttpClient();
+            // GitHub требует наличие User-Agent для всех запросов
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("MyApp");
 
             foreach (var asset in latestRelease.Assets)
             {
                 string fileName = asset.Name;
+                string fullPath = path + fileName;
 
-                // Решение: Запрашиваем байты файла напрямую через URI ресурса API
-                var response = await client.Connection.Get<byte[]>(
-                    new System.Uri(asset.Url),
-                    new System.Collections.Generic.Dictionary<string, string>(),
-                    "application/octet-stream" // Обязательный заголовок для получения файла
-                );
+                // Используем BrowserDownloadUrl для прямого скачивания файла
+                byte[] fileData = await httpClient.GetByteArrayAsync(asset.BrowserDownloadUrl);
 
-                // В ответе будет содержаться массив байт (Body)
-                byte[] fileData = response.Body;
-
-                if (!path.EndsWith(@"\")) { path = path + @"\"; }
-
-                await File.WriteAllBytesAsync(path + fileName, fileData);
-                Console.WriteLine($"Файл успешно скачан.");
+                await File.WriteAllBytesAsync(fullPath, fileData);
+                Console.WriteLine($"Файл {fileName} успешно скачан.");
             }
-        }
-        */
-
-        void DisplayError(string error)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(error);
-            Console.ResetColor();
         }
     }
 }
